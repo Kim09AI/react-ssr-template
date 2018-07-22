@@ -8,9 +8,6 @@
 
 # production
 /dist
-/public/base.dll.js
-/public/base.manifest.json
-/config/.uglify-cache
 
 # misc
 .DS_Store

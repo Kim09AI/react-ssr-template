@@ -7,7 +7,7 @@ import { Provider } from 'react-redux'
 import createSagaMiddleware from 'redux-saga'
 import { AppContainer } from 'react-hot-loader' // eslint-disable-line
 
-import createRootReducer from './reducers'
+import rootReducer from './reducers'
 import rootSaga from './saga'
 import { cacheMiddleware, resetStateMiddleware } from './utils/middleware'
 
@@ -18,7 +18,7 @@ const initialState = window.__INITIAL_STATE__ || {} // eslint-disable-line
 const sagaMiddleware = createSagaMiddleware()
 
 const middleware = [cacheMiddleware, resetStateMiddleware, sagaMiddleware]
-const store = createStore(createRootReducer(), initialState, applyMiddleware(...middleware))
+const store = createStore(rootReducer, initialState, applyMiddleware(...middleware))
 
 sagaMiddleware.run(rootSaga)
 

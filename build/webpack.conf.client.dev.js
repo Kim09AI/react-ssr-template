@@ -1,11 +1,13 @@
 const webpack = require('webpack')
+const merge = require('webpack-merge')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const path = require('path')
+const base = require('./webpack.conf.base')
+const config = require('./config')
 
 const r = dir => path.resolve(__dirname, '..', dir)
 
-module.exports = {
-    context: r('.'),
+module.exports = merge(base, {
     mode: 'development',
     devtool: '#cheap-module-source-map',
     entry: {
@@ -14,24 +16,14 @@ module.exports = {
     output: {
         filename: 'static/js/[name].js',
         path: r('dist'),
-        publicPath: '/public/',
+        publicPath: config.dev.publicPath,
         chunkFilename: 'static/js/[name].js'
     },
     resolve: {
-        mainFields: ['jsnext:main', 'browser', 'main'],
-        extensions: ['.jsx', '.js', '.json'],
-        alias: {
-            '~': r('src')
-        }
+        mainFields: ['jsnext:main', 'browser', 'main']
     },
     module: {
         rules: [
-            {
-                test: /\.(js|jsx)$/,
-                loader: 'eslint-loader',
-                exclude: r('node_modules'),
-                enforce: 'pre'
-            },
             {
                 test: /\.(js|jsx)$/,
                 use: {
@@ -49,7 +41,7 @@ module.exports = {
                     {
                         loader: 'css-loader',
                         options: {
-                            modules: true,
+                            modules: config.common.cssModules,
                             localIdentName: '[path]_[name]_[local]_[hash:5]',
                             sourceMap: true,
                             importLoaders: 2
@@ -81,30 +73,6 @@ module.exports = {
                         }
                     }
                 ]
-            },
-            {
-                test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
-                loader: 'url-loader',
-                options: {
-                    limit: 10000,
-                    name: 'static/img/[name].[hash:7].[ext]'
-                }
-            },
-            {
-                test: /\.(mp4|webm|ogg|mp3|wav|flac|aac)(\?.*)?$/,
-                loader: 'url-loader',
-                options: {
-                    limit: 10000,
-                    name: 'static/media/[name].[hash:7].[ext]'
-                }
-            },
-            {
-                test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
-                loader: 'url-loader',
-                options: {
-                    limit: 10000,
-                    name: 'static/fonts/[name].[hash:7].[ext]'
-                }
             }
         ]
     },
@@ -135,13 +103,13 @@ module.exports = {
             warnings: false
         },
         hot: true,
-        publicPath: '/public/',
+        publicPath: config.dev.publicPath,
         historyApiFallback: {
             rewrites: [
-                { from: /^\//, to: '/public/index.html' }
+                { from: /^\//, to: `${config.dev.publicPath}index.html` }
             ]
         },
         open: false,
         inline: true
     }
-}
+})

@@ -1,4 +1,4 @@
-require('babel-polyfill')
+require('babel-polyfill') // 在node环境中可以运行结果webpack打包过的decorators
 const express = require('express')
 const path = require('path')
 

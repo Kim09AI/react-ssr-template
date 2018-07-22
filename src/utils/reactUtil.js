@@ -2,6 +2,21 @@ import React from 'react'
 import { Route } from 'react-router-dom'
 
 /**
+ * example
+ * [
+ *      {
+ *          path: '/postList',
+ *          component: PostList,
+ *          // 放置嵌套路由
+ *          routes: [
+ *              {
+ *                  path: '/test',
+ *                  component: Test,
+ *                  exact: false
+ *              }
+ *          ]
+ *      }
+ * ]
  * 根据路由配置生成相应路由
  * @param {array} routeConfig 路由配置
  * @param {string} parentPath 父级路由
@@ -28,6 +43,11 @@ export function createRoutes(routeConfig, parentPath = '') {
     )
 }
 
+/**
+ * 辅助创建reducer
+ * @param {any} initialState 初始值
+ * @param {object} handlers 包含reducer处理函数的对象
+ */
 export function createReducer(initialState, handlers) {
     return function reducer(state = initialState, action) {
         if (handlers.hasOwnProperty(action.type)) { // eslint-disable-line

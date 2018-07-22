@@ -1,11 +1,51 @@
 const webpack = require('webpack')
+const merge = require('webpack-merge')
 const path = require('path')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const base = require('./webpack.conf.base')
+const config = require('./config')
 
 const r = dir => path.resolve(__dirname, '..', dir)
 
-module.exports = {
-    context: r('.'),
+const cssLoaders = !config.common.cssModules ? ['ignore-loader'] : [
+    MiniCssExtractPlugin.loader,
+    {
+        loader: 'css-loader',
+        options: {
+            modules: true,
+            localIdentName: '[path]_[name]_[local]_[hash:5]',
+            sourceMap: true,
+            importLoaders: 2
+        }
+    },
+    {
+        loader: 'postcss-loader',
+        options: {
+            ident: 'postcss',
+            plugins: () => [
+                require('postcss-flexbugs-fixes'),
+                require('autoprefixer')({
+                    browsers: [
+                        '>1%',
+                        'last 4 versions',
+                        'Firefox ESR',
+                        'not ie < 9'
+                    ],
+                    flexbox: 'no-2009'
+                })
+            ],
+            sourceMap: true
+        }
+    },
+    {
+        loader: 'stylus-loader',
+        options: {
+            sourceMap: true
+        }
+    }
+]
+
+module.exports = merge(base, {
     mode: process.env.NODE_ENV || 'development',
     target: 'node',
     entry: {
@@ -14,24 +54,12 @@ module.exports = {
     output: {
         filename: 'server.bundle.js',
         path: r('dist'),
-        publicPath: process.env.NODE_ENV === 'development' ? '/public/' : '/',
+        publicPath: process.env.NODE_ENV === 'development' ? config.dev.publicPath : config.prod.publicPath,
         libraryTarget: 'commonjs2'
-    },
-    resolve: {
-        extensions: ['.jsx', '.js', '.json'],
-        alias: {
-            '~': r('src')
-        }
     },
     externals: [Object.keys(require('../package').dependencies)],
     module: {
         rules: [
-            {
-                test: /\.(js|jsx)$/,
-                loader: 'eslint-loader',
-                exclude: r('node_modules'),
-                enforce: 'pre'
-            },
             {
                 test: /\.(js|jsx)$/,
                 use: {
@@ -41,67 +69,7 @@ module.exports = {
             },
             {
                 test: /\.(css|styl)$/,
-                use: [
-                    MiniCssExtractPlugin.loader,
-                    {
-                        loader: 'css-loader',
-                        options: {
-                            modules: true,
-                            localIdentName: '[path]_[name]_[local]_[hash:5]',
-                            sourceMap: true,
-                            importLoaders: 2
-                        }
-                    },
-                    {
-                        loader: 'postcss-loader',
-                        options: {
-                            ident: 'postcss',
-                            plugins: () => [
-                                require('postcss-flexbugs-fixes'),
-                                require('autoprefixer')({
-                                    browsers: [
-                                        '>1%',
-                                        'last 4 versions',
-                                        'Firefox ESR',
-                                        'not ie < 9'
-                                    ],
-                                    flexbox: 'no-2009'
-                                })
-                            ],
-                            sourceMap: true
-                        }
-                    },
-                    {
-                        loader: 'stylus-loader',
-                        options: {
-                            sourceMap: true
-                        }
-                    }
-                ]
-            },
-            {
-                test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
-                loader: 'url-loader',
-                options: {
-                    limit: 10000,
-                    name: 'static/img/[name].[hash:7].[ext]'
-                }
-            },
-            {
-                test: /\.(mp4|webm|ogg|mp3|wav|flac|aac)(\?.*)?$/,
-                loader: 'url-loader',
-                options: {
-                    limit: 10000,
-                    name: 'static/media/[name].[hash:7].[ext]'
-                }
-            },
-            {
-                test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
-                loader: 'url-loader',
-                options: {
-                    limit: 10000,
-                    name: 'static/fonts/[name].[hash:7].[ext]'
-                }
+                use: cssLoaders
             }
         ]
     },
@@ -111,10 +79,11 @@ module.exports = {
                 isClient: 'false',
                 isServer: 'true'
             }
-        }),
+        })
+    ].concat(config.common.cssModules ? [
         new MiniCssExtractPlugin({
             filename: 'server/[name].css',
             chunkFilename: 'server/[name].css'
         })
-    ]
-}
+    ] : [])
+})

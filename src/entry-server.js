@@ -4,7 +4,7 @@ import { Provider } from 'react-redux'
 
 import App from './app'
 import { cacheMiddleware, resetStateMiddleware } from './utils/middleware'
-import createRootReducer from './reducers'
+import rootReducer from './reducers'
 import rootSaga from './saga'
 
 export default (url, routerContext, store) => (
@@ -15,4 +15,4 @@ export default (url, routerContext, store) => (
     </Provider>
 )
 
-export { cacheMiddleware, resetStateMiddleware, createRootReducer, rootSaga }
+export { cacheMiddleware, resetStateMiddleware, rootReducer, rootSaga }

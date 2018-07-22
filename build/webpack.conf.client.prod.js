@@ -1,13 +1,15 @@
 const webpack = require('webpack')
+const merge = require('webpack-merge')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const path = require('path')
 const UglifyjsWebpackPlugin = require('uglifyjs-webpack-plugin')
+const base = require('./webpack.conf.base')
+const config = require('./config')
 
 const r = dir => path.resolve(__dirname, '..', dir)
 
-module.exports = {
-    context: r('.'),
+module.exports = merge(base, {
     mode: 'production',
     devtool: '#source-map',
     performance: {
@@ -23,24 +25,14 @@ module.exports = {
     output: {
         filename: 'static/js/[name].[chunkhash:8].js',
         path: r('dist'),
-        publicPath: '/',
+        publicPath: config.prod.publicPath,
         chunkFilename: 'static/js/[name].[chunkhash:8].js'
     },
     resolve: {
-        mainFields: ['jsnext:main', 'browser', 'main'],
-        extensions: ['.jsx', '.js', '.json'],
-        alias: {
-            '~': r('src')
-        }
+        mainFields: ['jsnext:main', 'browser', 'main']
     },
     module: {
         rules: [
-            {
-                test: /\.(js|jsx)$/,
-                loader: 'eslint-loader',
-                exclude: r('node_modules'),
-                enforce: 'pre'
-            },
             {
                 test: /\.(js|jsx)$/,
                 use: {
@@ -55,7 +47,7 @@ module.exports = {
                     {
                         loader: 'css-loader',
                         options: {
-                            modules: true,
+                            modules: config.common.cssModules,
                             localIdentName: '[path]_[name]_[local]_[hash:5]',
                             sourceMap: true,
                             minimize: true,
@@ -88,30 +80,6 @@ module.exports = {
                         }
                     }
                 ]
-            },
-            {
-                test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
-                loader: 'url-loader',
-                options: {
-                    limit: 10000,
-                    name: 'static/img/[name].[hash:7].[ext]'
-                }
-            },
-            {
-                test: /\.(mp4|webm|ogg|mp3|wav|flac|aac)(\?.*)?$/,
-                loader: 'url-loader',
-                options: {
-                    limit: 10000,
-                    name: 'static/media/[name].[hash:7].[ext]'
-                }
-            },
-            {
-                test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
-                loader: 'url-loader',
-                options: {
-                    limit: 10000,
-                    name: 'static/fonts/[name].[hash:7].[ext]'
-                }
             }
         ]
     },
@@ -171,4 +139,4 @@ module.exports = {
             chunkFilename: 'static/css/[name].[contenthash:8].css'
         })
     ]
-}
+})
