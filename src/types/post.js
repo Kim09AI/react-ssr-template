@@ -1,0 +1,5 @@
+export const GET_POST_LIST_ASYNC = 'GET_POST_LIST_ASYNC'
+
+export const GET_POST_LIST = 'GET_POST_LIST'
+
+export const RESET_POST_LIST = 'RESET_POST_LIST'

@@ -1,0 +1,17 @@
+.list {
+    font-size: 16px;
+}
+
+.item {
+    padding: 5px 0;
+    cursor: pointer;
+}
+
+.logo-wrapper {
+   text-align: center;
+}
+
+.logo {
+    width: 100px;
+    height: 100px;
+}

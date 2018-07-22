@@ -1,0 +1,174 @@
+const webpack = require('webpack')
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const path = require('path')
+const UglifyjsWebpackPlugin = require('uglifyjs-webpack-plugin')
+
+const r = dir => path.resolve(__dirname, '..', dir)
+
+module.exports = {
+    context: r('.'),
+    mode: 'production',
+    devtool: '#source-map',
+    performance: {
+        hints: 'warning',
+        maxAssetSize: 300000,
+        assetFilter: (assetFilename) => {
+            return assetFilename.endsWith('.js')
+        }
+    },
+    entry: {
+        app: './src/entry-client.js'
+    },
+    output: {
+        filename: 'static/js/[name].[chunkhash:8].js',
+        path: r('dist'),
+        publicPath: '/',
+        chunkFilename: 'static/js/[name].[chunkhash:8].js'
+    },
+    resolve: {
+        mainFields: ['jsnext:main', 'browser', 'main'],
+        extensions: ['.jsx', '.js', '.json'],
+        alias: {
+            '~': r('src')
+        }
+    },
+    module: {
+        rules: [
+            {
+                test: /\.(js|jsx)$/,
+                loader: 'eslint-loader',
+                exclude: r('node_modules'),
+                enforce: 'pre'
+            },
+            {
+                test: /\.(js|jsx)$/,
+                use: {
+                    loader: 'babel-loader'
+                },
+                include: r('src')
+            },
+            {
+                test: /\.(css|styl)$/,
+                use: [
+                    MiniCssExtractPlugin.loader,
+                    {
+                        loader: 'css-loader',
+                        options: {
+                            modules: true,
+                            localIdentName: '[path]_[name]_[local]_[hash:5]',
+                            sourceMap: true,
+                            minimize: true,
+                            importLoaders: 2
+                        }
+                    },
+                    {
+                        loader: 'postcss-loader',
+                        options: {
+                            ident: 'postcss',
+                            plugins: () => [
+                                require('postcss-flexbugs-fixes'),
+                                require('autoprefixer')({
+                                    browsers: [
+                                        '>1%',
+                                        'last 4 versions',
+                                        'Firefox ESR',
+                                        'not ie < 9'
+                                    ],
+                                    flexbox: 'no-2009'
+                                })
+                            ],
+                            sourceMap: true
+                        }
+                    },
+                    {
+                        loader: 'stylus-loader',
+                        options: {
+                            sourceMap: true
+                        }
+                    }
+                ]
+            },
+            {
+                test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
+                loader: 'url-loader',
+                options: {
+                    limit: 10000,
+                    name: 'static/img/[name].[hash:7].[ext]'
+                }
+            },
+            {
+                test: /\.(mp4|webm|ogg|mp3|wav|flac|aac)(\?.*)?$/,
+                loader: 'url-loader',
+                options: {
+                    limit: 10000,
+                    name: 'static/media/[name].[hash:7].[ext]'
+                }
+            },
+            {
+                test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
+                loader: 'url-loader',
+                options: {
+                    limit: 10000,
+                    name: 'static/fonts/[name].[hash:7].[ext]'
+                }
+            }
+        ]
+    },
+    optimization: {
+        runtimeChunk: {
+            name: 'manifest'
+        },
+        splitChunks: {
+            cacheGroups: {
+                vender: {
+                    test: /[\\/]node_modules[\\/]/,
+                    name: 'vender',
+                    priority: -10,
+                    chunks: 'all'
+                }
+            }
+        },
+        minimizer: [
+            new UglifyjsWebpackPlugin({
+                uglifyOptions: {
+                    output: {
+                        comments: false,
+                        beautify: false
+                    },
+                    compress: {
+                        warnings: false
+                    }
+                },
+                cache: true,
+                parallel: true,
+                sourceMap: true
+            })
+        ]
+    },
+    plugins: [
+        new HtmlWebpackPlugin({
+            filename: 'server.ejs',
+            template: '!!ejs-compiled-loader!' + r('public/server.template.ejs'),
+            inject: true,
+            minify: {
+                removeComments: true,
+                collapseWhitespace: true,
+                removeAttributeQuotes: true
+            },
+            chunksSortMode: 'dependency'
+        }),
+        new webpack.DefinePlugin({
+            'process.env': {
+                isClient: 'true',
+                isServer: 'false'
+            }
+        }),
+        new webpack.HashedModuleIdsPlugin(),
+        new webpack.optimize.ModuleConcatenationPlugin(),
+        new MiniCssExtractPlugin({
+            filename: 'static/css/[name].[contenthash:8].css',
+            chunkFilename: 'static/css/[name].[contenthash:8].css'
+        })
+    ]
+}
