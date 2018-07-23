@@ -96,6 +96,7 @@ module.exports = merge(base, {
         })
     ],
     devServer: {
+        contentBase: r('public'),
         host: '0.0.0.0',
         port: 9000,
         overlay: {

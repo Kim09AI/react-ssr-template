@@ -40,7 +40,7 @@ export default class Detail extends React.Component {
         return (
             <div>
                 <Helmet>
-                    <title>detail</title>
+                    <title>{detail.title}</title>
                     <meta name="keywords" content="HTML,ASP,PHP,SQL" />
                 </Helmet>
                 <div onClick={() => this.goBack()} style={{ cursor: 'pointer' }}>返回</div>

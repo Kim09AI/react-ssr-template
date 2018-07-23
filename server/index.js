@@ -1,4 +1,3 @@
-require('babel-polyfill') // 在node环境中可以运行结果webpack打包过的decorators
 const express = require('express')
 const path = require('path')
 
@@ -7,6 +6,9 @@ const app = express()
 const isDev = process.env.NODE_ENV === 'development'
 
 if (isDev) {
+    app.use(express.static(path.resolve(__dirname, '../public')))
+
+    // 代理到webpack-dev-server服务器
     app.use('/public', require('http-proxy-middleware')({
         target: 'http://localhost:9000',
         changeOrigin: true

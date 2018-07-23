@@ -4,6 +4,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const path = require('path')
 const UglifyjsWebpackPlugin = require('uglifyjs-webpack-plugin')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 const base = require('./webpack.conf.base')
 const config = require('./config')
 
@@ -137,6 +138,9 @@ module.exports = merge(base, {
         new MiniCssExtractPlugin({
             filename: 'static/css/[name].[contenthash:8].css',
             chunkFilename: 'static/css/[name].[contenthash:8].css'
-        })
+        }),
+        new CopyWebpackPlugin([
+            { from: r('public'), to: '', ignore: ['index.template.html', 'server.template.ejs'] }
+        ])
     ]
 })

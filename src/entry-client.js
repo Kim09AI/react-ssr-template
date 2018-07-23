@@ -8,7 +8,7 @@ import createSagaMiddleware from 'redux-saga'
 import { AppContainer } from 'react-hot-loader' // eslint-disable-line
 
 import rootReducer from './reducers'
-import rootSaga from './saga'
+import rootSaga from './sagas'
 import { cacheMiddleware, resetStateMiddleware } from './utils/middleware'
 
 import App from './app'

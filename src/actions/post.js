@@ -6,7 +6,7 @@ export const getPostListAsync = (page, tab, limit, mdrender) => ({
     tab,
     limit,
     mdrender,
-    reset: types.RESET_POST_LIST
+    // reset: types.RESET_POST_LIST
 })
 
 export const getPostList = postList => ({

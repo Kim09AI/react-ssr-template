@@ -9,12 +9,11 @@ const serialize = require('serialize-javascript')
 module.exports = async (template, serverBundle, req, res, next) => {
     try {
         const routerContext = {}
-        const { default: createApp, cacheMiddleware, resetStateMiddleware, rootReducer, rootSaga } = serverBundle
+        const { default: createApp, rootReducer, rootSaga } = serverBundle
         const { createStore, applyMiddleware } = redux
         const { default: createSagaMiddleware, END } = saga
         const sagaMiddleware = createSagaMiddleware()
-        const middleware = [cacheMiddleware, resetStateMiddleware, sagaMiddleware]
-        const store = createStore(rootReducer, applyMiddleware(...middleware))
+        const store = createStore(rootReducer, applyMiddleware(sagaMiddleware))
         const sagaTask = sagaMiddleware.run(rootSaga)
         const app = createApp(req.url, routerContext, store)
 
@@ -33,8 +32,8 @@ module.exports = async (template, serverBundle, req, res, next) => {
         store.dispatch(END)
         await sagaTask.done
 
-        const helmet = Helmet.renderStatic()
         const appString = ReactDOMServer.renderToString(app)
+        const helmet = Helmet.renderStatic()
 
         const html = ejs.render(template, {
             appString,
