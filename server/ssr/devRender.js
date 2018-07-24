@@ -31,12 +31,18 @@ complier.watch({}, (err, stats) => {
     let bundle = mfs.readFileSync(bundlePath, 'utf-8')
 
     const m = { exports: {} }
+    // 对打包后的server.bundle.js添加一层wrap
+    // 即由 module.exports = 我们的代码 => (function (exports, require, module, __filename, __dirname) { module.exports = 我们的代码 })
     const wrap = NativeModule.wrap(bundle)
+    // 把字符串转换成可执行的代码
     const script = new vm.Script(wrap, {
         displayErrors: true,
         filename: 'server.bundle.js'
     })
+    // 指定运行环境
     const result = script.runInThisContext()
+    // 执行(function (exports, require, module, __filename, __dirname) { module.exports = 我们的代码 })
+    // 把代码执行结果挂载到module.exports上
     result.call(m.exports, m.exports, require, m)
     serverBundle = m.exports
 })

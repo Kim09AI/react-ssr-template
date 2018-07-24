@@ -15,16 +15,12 @@ if (isDev) {
     }))
 
     const devRender = require('./ssr/devRender')
-    app.get('*', (req, res, next) => {
-        devRender(req, res, next)
-    })
+    app.get('*', devRender)
 } else {
     app.use(express.static(path.resolve(__dirname, '../dist')))
 
     const prodRender = require('./ssr/prodRender')
-    app.get('*', (req, res, next) => {
-        prodRender(req, res, next)
-    })
+    app.get('*', prodRender)
 }
 
 app.use((req, res, next) => {
