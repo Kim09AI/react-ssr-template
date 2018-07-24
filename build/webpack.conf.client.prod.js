@@ -5,6 +5,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const path = require('path')
 const UglifyjsWebpackPlugin = require('uglifyjs-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
+const ReactLoadablePlugin = require('react-loadable/webpack').ReactLoadablePlugin
 const base = require('./webpack.conf.base')
 const config = require('./config')
 
@@ -141,6 +142,9 @@ module.exports = merge(base, {
         }),
         new CopyWebpackPlugin([
             { from: r('public'), to: '', ignore: ['index.template.html', 'server.template.ejs'] }
-        ])
+        ]),
+        new ReactLoadablePlugin({
+            filename: './dist/react-loadable.json'
+        })
     ]
 })

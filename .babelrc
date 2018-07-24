@@ -7,6 +7,7 @@
         "react"
     ],
     "plugins": [
+        "react-loadable/babel",
         "transform-decorators-legacy",
         "react-hot-loader/babel",
         ["react-css-modules", {

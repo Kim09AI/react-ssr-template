@@ -6,6 +6,7 @@ import { createStore, applyMiddleware } from 'redux'
 import { Provider } from 'react-redux'
 import createSagaMiddleware from 'redux-saga'
 import { AppContainer } from 'react-hot-loader' // eslint-disable-line
+import Loadable from 'react-loadable'
 
 import rootReducer from './reducers'
 import rootSaga from './sagas'
@@ -35,7 +36,7 @@ const renderApp = (Component) => {
     )
 }
 
-renderApp(App)
+Loadable.preloadReady().then(() => renderApp(App))
 
 if (module.hot) {
     // redux hot reload
@@ -45,7 +46,9 @@ if (module.hot) {
 
     // react hot reload
     module.hot.accept('./app', () => {
-        const NewApp = require('./app').default // eslint-disable-line
-        renderApp(NewApp)
+        Loadable.preloadReady().then(() => {
+            const NewApp = require('./app').default // eslint-disable-line
+            renderApp(NewApp)
+        })
     })
 }

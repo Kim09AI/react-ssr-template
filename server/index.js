@@ -1,5 +1,6 @@
 const express = require('express')
 const path = require('path')
+const Loadable = require('react-loadable')
 
 const app = express()
 
@@ -35,4 +36,6 @@ app.use((err, req, res, next) => {
 })
 
 const port = process.env.PORT || 3000
-app.listen(port, () => console.log(`server running on http://localhost:${port}`))
+Loadable.preloadAll().then(() => {
+    app.listen(port, () => console.log(`server running on http://localhost:${port}`))
+})
