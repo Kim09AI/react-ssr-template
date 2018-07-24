@@ -38,6 +38,12 @@ const renderApp = (Component) => {
 renderApp(App)
 
 if (module.hot) {
+    // redux hot reload
+    module.hot.accept('./reducers', () => {
+        store.replaceReducer(require('./reducers').default) // eslint-disable-line
+    })
+
+    // react hot reload
     module.hot.accept('./app', () => {
         const NewApp = require('./app').default // eslint-disable-line
         renderApp(NewApp)

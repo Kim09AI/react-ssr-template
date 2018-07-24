@@ -10,6 +10,7 @@ import { Route } from 'react-router-dom'
  *          // 放置嵌套路由
  *          routes: [
  *              {
+ *                  // 会自动拼接路径，此处为 /postList/test
  *                  path: '/test',
  *                  component: Test,
  *                  exact: false

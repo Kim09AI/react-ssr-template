@@ -17,6 +17,8 @@ module.exports = async (template, serverBundle, req, res, next) => {
         const sagaTask = sagaMiddleware.run(rootSaga)
         const app = createApp(req.url, routerContext, store)
 
+        // 此处可以考虑同步一些数据，比如在用户登录的情况下同步登录状态
+
         // 调用组件的bootstrap获取数据
         await bootstrapper(app)
 

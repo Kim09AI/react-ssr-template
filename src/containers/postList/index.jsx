@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 
 import { getPostListAsync } from '../../actions/post'
-import { autoFetchData } from '../../utils/decorators'
+import { autoFetch } from '../../utils/decorators'
 import './style.css'
 import vueLogo from '../../assets/img/vue.png'
 import reactLogo from '../../assets/img/react.png'
@@ -14,7 +14,7 @@ const mapStateToProps = state => ({
 })
 
 @connect(mapStateToProps, { getPostListAsync })
-@autoFetchData
+@autoFetch
 export default class PostList extends React.Component {
     static propTypes = {
         getPostListAsync: PropTypes.func.isRequired,

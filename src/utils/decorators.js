@@ -1,5 +1,5 @@
-export const autoFetchData = Component => {
-    class AutoFetchDataComponent extends Component {
+export const autoFetch = Component => {
+    class AutoFetchComponent extends Component {
         componentWillMount() {
             // eslint-disable-next-line
             if (process.env.isClient && !window.__INITIAL_URL__) {
@@ -14,5 +14,5 @@ export const autoFetchData = Component => {
         }
     }
 
-    return AutoFetchDataComponent
+    return AutoFetchComponent
 }

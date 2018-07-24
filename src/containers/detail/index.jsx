@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 
 import { getPostDetailAsync } from '../../actions/detail'
-import { autoFetchData } from '../../utils/decorators'
+import { autoFetch } from '../../utils/decorators'
 import './style.styl'
 
 const mapStateToProps = state => ({
@@ -12,7 +12,7 @@ const mapStateToProps = state => ({
 })
 
 @connect(mapStateToProps, { getPostDetailAsync })
-@autoFetchData
+@autoFetch
 export default class Detail extends React.Component {
     static propTypes = {
         getPostDetailAsync: PropTypes.func.isRequired,
