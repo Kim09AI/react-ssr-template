@@ -1,5 +1,5 @@
 import React from 'react'
-import { Route } from 'react-router-dom'
+import { Route, matchPath } from 'react-router-dom'
 
 /**
  * example
@@ -20,7 +20,7 @@ import { Route } from 'react-router-dom'
  * ]
  * 根据路由配置生成相应路由
  * @param {array} routeConfig 路由配置
- * @param {string} parentPath 父级路由
+ * @param {string} parentPath 父级路由的path
  */
 export function createRoutes(routeConfig, parentPath = '') {
     if (!routeConfig || routeConfig.length === 0) {
@@ -57,4 +57,31 @@ export function createReducer(initialState, handlers) {
 
         return state
     }
+}
+
+/**
+ * 获取匹配pathname的组件列表
+ * @param {array} routes 路由配置
+ * @param {string} pathname url的pathname
+ * @param {string} parentPath 父级路由的path
+ */
+export function getMatchComponents(routes, pathname, parentPath = '') {
+    const components = []
+
+    routes.some(route => {
+        const result = matchPath(pathname, {
+            ...route,
+            path: parentPath + route.path
+        })
+
+        if (result !== null) {
+            components.push(route.component)
+            route.routes && components.push(...getMatchComponents(route.routes, pathname, parentPath + route.path))
+            return true
+        }
+
+        return false
+    })
+
+    return components
 }

@@ -1,7 +1,7 @@
 {
   "name": "react-ssr-template",
   "version": "1.0.0",
-  "description": "",
+  "description": "基于react、react-router、redux、redux-saga、webpack等构建的服务端渲染模板",
   "main": "index.js",
   "scripts": {
     "dev:client": "cross-env NODE_ENV=development webpack-dev-server --config build/webpack.conf.client.js",
@@ -10,9 +10,10 @@
     "build:client": "cross-env NODE_ENV=production webpack --config build/webpack.conf.client.js",
     "build:server": "cross-env NODE_ENV=production webpack --config build/webpack.conf.server.js",
     "build": "npm run clear && npm run build:client && npm run build:server",
-    "start": "cross-env NODE_ENV=production node server/index.js"
+    "start": "cross-env NODE_ENV=production node server/index.js",
+    "lint": "eslint --ext .jsx --ext .js src/"
   },
-  "author": "",
+  "author": "Kim09",
   "license": "ISC",
   "devDependencies": {
     "autoprefixer": "^9.0.1",

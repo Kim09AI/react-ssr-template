@@ -42,7 +42,7 @@ module.exports = async (template, serverBundle, req, res, next, stats) => {
         if (stats) {
             const bundles = getBundles(stats, modules)
 
-            // 对懒加载的组件进行过滤去重
+            // 对懒加载的资源进行过滤去重
             const cssBundles = bundles
                 .filter(bundle => bundle.publicPath.endsWith('.css'))
                 .reduce((result, bundle) => {
@@ -50,7 +50,7 @@ module.exports = async (template, serverBundle, req, res, next, stats) => {
                     return result
                 }, [])
                 .map(publicPath => `<link rel="stylesheet" type="text/css" href="${publicPath}">`).join('')
-            const bundleScripts = bundles
+            const jsBundles = bundles
                 .filter(bundle => bundle.publicPath.endsWith('.js'))
                 .reduce((result, bundle) => {
                     result.indexOf(bundle.publicPath) === -1 && result.push(bundle.publicPath)
@@ -61,7 +61,7 @@ module.exports = async (template, serverBundle, req, res, next, stats) => {
             // 把懒加载的资源添加到模板中
             template = template
                 .replace(/(<\/head>)/, `${cssBundles}$1`)
-                .replace(/(<script[^>]+app\.[\d\w]+\.js[^>]?><\/script>)/, `${bundleScripts}$1`)
+                .replace(/(<script[^>]+app\.[\d\w]+\.js[^>]?><\/script>)/, `${jsBundles}$1`)
         }
 
         const html = ejs.render(template, {

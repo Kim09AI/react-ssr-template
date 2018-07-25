@@ -16,7 +16,8 @@ module.exports = merge(base, {
         filename: 'server.bundle.js',
         path: r('dist'),
         publicPath: process.env.NODE_ENV === 'development' ? config.dev.publicPath : config.prod.publicPath,
-        libraryTarget: 'commonjs2'
+        libraryTarget: 'commonjs2',
+        chunkFilename: 'server/[name].server.chunk.js'
     },
     externals: [Object.keys(require('../package').dependencies)],
     module: {
