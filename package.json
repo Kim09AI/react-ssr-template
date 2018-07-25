@@ -13,6 +13,9 @@
     "start": "cross-env NODE_ENV=production node server/index.js",
     "lint": "eslint --ext .jsx --ext .js src/"
   },
+  "pre-commit": [
+      "lint"
+  ],
   "author": "Kim09",
   "license": "ISC",
   "devDependencies": {
@@ -48,6 +51,7 @@
     "nodemon": "^1.18.3",
     "postcss-flexbugs-fixes": "^4.0.0",
     "postcss-loader": "^2.1.6",
+    "pre-commit": "^1.2.2",
     "react-hot-loader": "^4.3.3",
     "redux-devtools-extension": "^2.13.5",
     "rimraf": "^2.6.2",

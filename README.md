@@ -25,6 +25,7 @@ npm start
 - 路由懒加载（支持服务端渲染）
 - eslint规范代码（airbnb）
 - 内置css|stylus，支持css modules（默认启用）
+- 使用pre-commit规范提交的代码
 
 ## 目录
 - [服务端渲染数据预取](#1)
