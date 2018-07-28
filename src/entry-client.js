@@ -62,4 +62,11 @@ if (module.hot) {
             renderApp(NewApp)
         })
     })
+
+    module.hot.accept('./routes/index', () => {
+        // 什么都不用做，因为hot reload失效的原因是因为这行
+        // import { routerConfig } from './routes/index'
+        // 页面组件修改的时候，更新事件会这样冒泡 *.jsx => ./routes/routerComponents.jsx => ./routes/index.jsx => entry-client.js
+        // 而之前没有定义接受更新事件的地方，就会刷新页面
+    })
 }
