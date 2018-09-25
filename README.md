@@ -1,5 +1,5 @@
 # react-ssr-template
->前言：一个简单易用、可拓展的、基于当前最新的react（16.4.1）、react-router（4.3.1）、redux（4.0.0）、redux-saga（0.16.0）、webpack（4.16.1）、express等搭建的react服务端渲染模板，除了一些基础的功能之外，还对一些服务端渲染中可以遇到或要解决的问题，做了一定的封装，使用起来更加方便，里面提供了两个页面供演示用，下面会详细讲解如何使用，并且这个项目也会一直维护更新，当然也会厚着脸皮要个star，欢迎star或fork、PR，有任何问题也都可以欢迎来提issues，一起来完善这个项目！！！
+>前言：在学习完`Jokcy`老师的[这门课程][2]后，打算搭建一个自己的服务端渲染模板，课程中状态管理选择的是`mobx`，而我比较熟悉的是`redux`，就选择了`redux`搭配`redux-saga`来进行构建，基于当前最新的react（16.4.1）、react-router（4.3.1）、redux（4.0.0）、redux-saga（0.16.0）、webpack（4.16.1）、express等构建react服务端渲染模板，后来在使用过程中觉得`redux-saga`过于繁琐，已废弃！
 
 ## 运行
 ```
@@ -36,8 +36,9 @@ npm start
 - [数据存在全局state中的问题](#数据存在全局state中的问题)
 - [登录后刷新页面如何同步状态](#登录后刷新页面如何同步状态)
 - [路由懒加载的一些问题](#路由懒加载的一些问题)
+- [存在的问题](#存在的问题)
 - [目录结构](#目录结构)
-- [最后](#最后)
+- [总结](#总结)
 
 ## 服务端渲染数据预取
 在容器组件中添加一个`bootstrap`的方法，在里面放置数据获取的代码，服务端渲染时会自动调用，可以在该方法内部返回一个`promise`（可选），以下2种方式都可以
@@ -75,7 +76,7 @@ import './style.styl'
 ```
 
 ## 如何防止再次获取服务端渲染预取的数据
-对于服务端渲染预取的数据，回到浏览器时肯定是不需要获取的，在思考这个问题的时候，也参考过几个模板的处理方法，总感觉不够方便，多少和业务代码耦合了，还要一个一个处理，使用不方便，也想过通过去记录`action`或通过`url`匹配组件的方式，最后都行不通，最后的最后总算是让我找到一个感觉不错的方法，只需要在容器组件添加一行即可`@autoFetch`，不过添加的位置是有限制的，比如要添加`@connect()`和`@autoFetch`到`Component`，那顺序只能是`@connect() @autoFetch Component`，这个跟我的实现方式有关，而解决再次获取服务端渲染预取的数据的问题，主要是利用了组件的`生命周期执行顺序`，代码如下
+对于服务端渲染预取的数据，回到浏览器时是不需要再次获取的，在容器组件添加一行即可`@autoFetch`，不过添加的位置是有限制的，比如要添加`@connect()`和`@autoFetch`到`Component`，那顺序只能是`@connect() @autoFetch Component`，这个跟我的实现方式有关，而解决再次获取服务端渲染预取的数据的问题，主要是利用了组件的`生命周期执行顺序`，代码如下
 ```js
 export const autoFetch = Component => {
     class AutoFetchComponent extends Component {
@@ -86,24 +87,28 @@ export const autoFetch = Component => {
             }
             typeof super.componentWillMount === 'function' && super.componentWillMount()
         }
-
-        componentDidMount() {
-            window.__INITIAL_URL__ && delete window.__INITIAL_URL__ // eslint-disable-line
-            typeof super.componentDidMount === 'function' && super.componentDidMount()
-        }
     }
 
     return AutoFetchComponent
 }
+
+// 根组件
+export default class App extends React.Component {
+    componentDidMount() {
+        // 首屏渲染完成后删除 __INITIAL_URL__
+        // 接下来的页面初始数据获取就会自动获取
+        window.__INITIAL_URL__ && delete window.__INITIAL_URL__ // eslint-disable-line
+    }
+}
 ```
-浏览器的页面初始数据就是在`componentWillMount`中统一获取的，`window.__INITIAL_URL__`是服务端渲染时的`url`(详细可查看`server/ssr/render.js`)，在页面刷新的时候，`window.__INITIAL_URL__`是当前服务端渲染时的`url`，然后`componentWillMount`的时候发现存在`window.__INITIAL_URL__`就不在获取初始数据了，然后`componentDidMount`就删掉`window.__INITIAL_URL__`，接下来在浏览器这边的路由跳转就可以正常获取数据了，这是很显然的，那对于嵌套路由是否也可以呢？答案也是可以的，比如页面A里面有一个嵌套路由B，两个页面都添加了`@autoFetch`，生命周期会是以下执行顺序
- 1. A页面componentWillMount
- 2. A页面render
- 3. B页面componentWillMount
- 4. B页面render
- 5. B页面componentDidMount
- 6. A页面componentDidMount
- 基于这样的生命周期执行顺序，在第一次`componentDidMount`时，所有页面级组件的`componentWillMount`都已执行，就可以利用`window.__INITIAL_URL__`绕过数据获取了，`componentDidMount`之后清除`window.__INITIAL_URL__`，接下来的路由跳转就会自动获取数据了
+浏览器的页面初始数据就是在`componentWillMount`中统一获取的，`window.__INITIAL_URL__`是服务端渲染时的`url`(详细可查看`server/ssr/render.js`)，在页面刷新的时候，`window.__INITIAL_URL__`是当前服务端渲染时的`url`，然后`componentWillMount`的时候发现存在`window.__INITIAL_URL__`就不在获取初始数据了，然后`componentDidMount`就删掉`window.__INITIAL_URL__`，并且生命周期执行顺序如下
+ 1. 父组件componentWillMount
+ 2. 父组件render
+ 3. 子组件componentWillMount
+ 4. 子组件render
+ 5. 子组件componentDidMount
+ 6. 父组件componentDidMount
+ 基于这样的生命周期执行顺序，在根组件`componentDidMount`时，所有组件的`componentWillMount`都已执行，就可以利用`window.__INITIAL_URL__`绕过数据获取了，`componentDidMount`之后清除`window.__INITIAL_URL__`，接下来的路由跳转就会自动获取数据了
 
 ## 数据存在全局state中的问题
 在没有服务端渲染时，把数据存在`store`的`state`中，可能是因为我们的数据需要共享或需要缓存，而服务端渲染时同步预取数据需要借助`redux`，导致一些适合放在组件`state`的数据也都放到了全局`state`，这样就会难免增加一些额外的判断，不加的话可能就会遇到这种情况，比如一个文章详情页，先点了一片文章然后返回，再点进另一篇文章时，就会先看到之前的文章，等ajax完成之后才看到当前文章，显然体验不够友好，针对这些问题，自己写了两个中间件`cacheMiddleware`和`resetStateMiddleware`，只需修改`action`即可
@@ -146,76 +151,11 @@ if (process.env.isServer && process.env.NODE_ENV === 'development') {
 })()
 ```
 
-## 目录结构
-```js
-├─.babelrc
-├─.editorconfig
-├─.eslintrc     # eslint配置文件
-├─nodemon.json
-├─package.json
-├─README.md
-├─yarn.lock
-├─src
-|  ├─.eslintrc  # eslint配置文件
-|  ├─app.jsx    # 同构的根组件
-|  ├─entry-client.js    # 客户端入口
-|  ├─entry-server.js    # 服务端渲染入口
-|  ├─utils
-|  |   ├─decorators.js
-|  |   ├─middleware.js
-|  |   └reactUtil.js
-|  ├─types      # 存放action type
-|  |   ├─detail.js  # 演示用
-|  |   └post.js     # 演示用
-|  ├─sagas      # 存放saga
-|  |   ├─detail.js     # 演示用
-|  |   ├─index.js
-|  |   └post.js        # 演示用
-|  ├─routes
-|  |   ├─index.jsx     # 路由配置
-|  |   └routerComponents.jsx    # 路由组件合集
-|  ├─reducers
-|  |    ├─detail.js     # 演示用
-|  |    ├─index.js
-|  |    └post.js        # 演示用
-|  ├─containers
-|  |     ├─postList     # 演示用
-|  |     |    ├─index.jsx
-|  |     |    └style.css
-|  |     ├─detail       # 演示用
-|  |     |   ├─index.jsx
-|  |     |   └style.styl
-|  ├─assets
-|  |   ├─img
-|  |   |  ├─react.png
-|  |   |  └vue.png
-|  ├─api    # 存放api请求
-|  |  └index.js
-|  ├─actions    # 存放action
-|  |    ├─detail.js    # 演示用
-|  |    └post.js       # 演示用
-├─server    # node代码
-|   ├─index.js
-|   ├─ssr
-|   |  ├─devRender.js   # 开发环境的服务端渲染
-|   |  ├─prodRender.js  # 生产环境的服务端渲染
-|   |  └render.js       # 通用的render
-├─public    # 静态资源目录，不经webpack处理，打包后会copy到dist根目录，访问地址如: /favicon.ico
-|   ├─favicon.ico
-|   ├─index.template.html
-|   └server.template.ejs    # 服务端渲染模板
-├─build     # webpack构建目录
-|   ├─config.js     # 配置文件
-|   ├─webpack.conf.base.js     # 提取出的公共webpack配置
-|   ├─webpack.conf.client.dev.js
-|   ├─webpack.conf.client.js
-|   ├─webpack.conf.client.prod.js
-|   └webpack.conf.server.js    # 服务端渲染webpack配置
+## 存在的问题
+`cookie`的共享问题，有解决的方法但是使用起来不方便
 
-```
-
-## 最后
-能够这样从零搭建一个react ssr模板，得感谢`Jokcy`老师，老师的这门课程对我帮助很大，感兴趣的同学可以[点击此处购买][2]，最后帮老师做个广告！
+## 总结
+学习完课程后，通过自己去从零搭建服务端渲染的工程，更加巩固的学到的知识，加深了对react服务端渲染的理解，搭建过程中也遇到了一些问题，在思考及解决某些问题的过程中也算有所提升，帮助自己在接下来可以搭建一个更加完善的服务端渲染模板
 
 
   [1]: https://github.com/jamiebuilds/react-loadable

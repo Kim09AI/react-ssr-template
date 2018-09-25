@@ -7,11 +7,6 @@ export const autoFetch = Component => {
             }
             typeof super.componentWillMount === 'function' && super.componentWillMount()
         }
-
-        componentDidMount() {
-            window.__INITIAL_URL__ && delete window.__INITIAL_URL__ // eslint-disable-line
-            typeof super.componentDidMount === 'function' && super.componentDidMount()
-        }
     }
 
     return AutoFetchComponent
